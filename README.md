@@ -1,6 +1,6 @@
 # 本机 TCP 端口扫描器
 
-一个基于 **Python + PyQt5** 的 Windows 本机 TCP 端口扫描与结果展示工具。项目把 socket 扫描、并发任务调度和桌面 GUI 组合成一个可运行、可打包、便于面试讲解的小型工程。
+一个基于 **Python + PyQt5** 的 Windows 本机 TCP 端口扫描与结果展示工具。项目把 socket 扫描、并发任务调度和桌面 GUI 组合成一个可运行、可打包、便于阅读和扩展的小型工程。
 
 ## 项目简介与适用场景
 
@@ -112,7 +112,7 @@ pyinstaller "端口扫描系统软件.spec"
 - 结果保存在内存中，程序关闭后不会自动恢复历史扫描。
 - 当前是单文件应用，缺少自动化 GUI 测试、持久化配置和国际化。
 
-## 面试亮点
+## 技术要点
 
 - **GUI 与 I/O 解耦**：用 `QThread` 承载扫描生命周期，用 Qt signal 将结果安全交给主线程，避免在槽函数中直接操作跨线程 UI。
 - **任务分发**：用线程安全 `Queue` 将端口任务分给固定数量 worker，避免为每个端口创建线程。
@@ -120,4 +120,4 @@ pyinstaller "端口扫描系统软件.spec"
 - **渐进式风险控制**：线程数有上下限，全端口扫描前确认，文档明确授权和资源边界。
 - **可交付性**：同一份源码既可直接运行，也可通过现有 spec 用 PyInstaller 构建。
 
-更多追问答案见 [`docs/interview-notes.md`](docs/interview-notes.md)。
+更多设计取舍和实现说明见 [`docs/technical-notes.md`](docs/technical-notes.md)。
