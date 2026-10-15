@@ -135,6 +135,7 @@ class MainWindow(QWidget):
         self.scan_thread = None
         self.scanned_results = []
         self.only_open = True
+        self.invalid_ports_tip = ''
 
     def init_ui(self):
         main_layout = QVBoxLayout()
@@ -275,6 +276,7 @@ class MainWindow(QWidget):
 
     def get_ports(self):
         """Parse the port input or return the selected scan range."""
+        self.invalid_ports_tip = ''
         if self.chk_all.isChecked():
             return list(range(1,65536))
         s = self.ports_input.text().strip()
@@ -297,7 +299,8 @@ class MainWindow(QWidget):
             except ValueError:
                 invalid_parts.append(part)
         if invalid_parts:
-            self.tip_box.setText("已忽略无效端口：" + ", ".join(invalid_parts[:5]))
+            self.invalid_ports_tip = "已忽略无效端口：" + ", ".join(invalid_parts[:5])
+            self.tip_box.setText(self.invalid_ports_tip)
         return sorted(ports)
 
     def default_ports(self):
@@ -334,7 +337,10 @@ class MainWindow(QWidget):
         self.progress.setMaximum(len(ports))
         self.progress.setValue(0)
         self.progress.setVisible(True)
-        self.tip_box.setText("正在扫描，请稍候...")
+        scan_tip = "正在扫描，请稍候..."
+        if self.invalid_ports_tip:
+            scan_tip += f"（{self.invalid_ports_tip}）"
+        self.tip_box.setText(scan_tip)
         self.btn_start.setEnabled(False)
         self.btn_save.setEnabled(False)
         self.btn_clear.setEnabled(False)
@@ -356,7 +362,10 @@ class MainWindow(QWidget):
     def on_progress(self, value):
         p = self.progress.value()
         self.progress.setValue(p+1)
-        self.tip_box.setText(f"已扫 {p+1}/{self.progress.maximum()}...")
+        progress_tip = f"已扫 {p+1}/{self.progress.maximum()}..."
+        if self.invalid_ports_tip:
+            progress_tip += f"（{self.invalid_ports_tip}）"
+        self.tip_box.setText(progress_tip)
 
     @pyqtSlot(int, str, float, str)
     def on_result(self, port, state, elapsed, service):
@@ -386,7 +395,10 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def on_finish(self):
         open_count = sum(1 for p,s,_,_ in self.scanned_results if s == '开放')
-        self.tip_box.setText(f"【扫描完毕】开放端口{open_count}个 / 扫描端口{len(self.scanned_results)}个。(↑点击切换显示全部/只看开放)")
+        finish_tip = f"【扫描完毕】开放端口{open_count}个 / 扫描端口{len(self.scanned_results)}个。(↑点击切换显示全部/只看开放)"
+        if self.invalid_ports_tip:
+            finish_tip += f"（{self.invalid_ports_tip}）"
+        self.tip_box.setText(finish_tip)
         self.btn_start.setEnabled(True)
         self.btn_save.setEnabled(True)
         self.btn_clear.setEnabled(True)
@@ -441,6 +453,7 @@ class MainWindow(QWidget):
     def clear_table(self):
         self.table.setRowCount(0)
         self.scanned_results = []
+        self.invalid_ports_tip = ''
         self.tip_box.setText('')
 
     def closeEvent(self, e):
