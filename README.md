@@ -53,6 +53,14 @@ python "端口扫描系统软件.py"
 ## 下载 Windows 版本
 
 可从 [GitHub Releases](https://github.com/hvccj/duankou-saomiao/releases/latest) 下载 `端口扫描系统软件.exe`。该版本无需安装 Python 或 PyQt5；首次运行时请确认文件来源，也可以使用发布页提供的 SHA-256 值校验文件完整性。本软件仅用于获授权的本机 TCP 连通性探测。
+
+下载完成后，在包含该文件的目录中打开 PowerShell，运行：
+
+```powershell
+Get-FileHash ".\端口扫描系统软件.exe" -Algorithm SHA256
+```
+
+请将命令输出的 `Hash` 与 GitHub Release 中对应的 `.sha256` 文件中的值逐字符比较；两者必须完全一致。
 ## 使用流程
 
 1. 启动程序，确认顶部显示的本机主机名和 IP。
