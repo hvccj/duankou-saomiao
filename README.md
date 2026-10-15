@@ -60,7 +60,7 @@ python "端口扫描系统软件.py"
 Get-FileHash ".\port-scanner.exe" -Algorithm SHA256
 ```
 
-请将命令输出的 `Hash` 与 GitHub Release 中对应的 `port-scanner.exe.sha256` 文件中的值逐字符比较；两者必须完全一致。
+请将命令输出的 `Hash` 与 GitHub Release 中对应的 `port-scanner.sha256` 文件中的值逐字符比较；两者必须完全一致。
 ## 使用流程
 
 1. 启动程序，确认顶部显示的本机主机名和 IP。
