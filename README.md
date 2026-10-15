@@ -41,6 +41,7 @@
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
+python -m pip install --upgrade pip
 pip install PyQt5
 python "端口扫描系统软件.py"
 ```
