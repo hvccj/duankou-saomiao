@@ -50,6 +50,9 @@ python "端口扫描系统软件.py"
 
 如果 PowerShell 的执行策略阻止激活脚本，也可以直接使用 `.venv\Scripts\python.exe` 执行后续命令；这不会改变项目代码。
 
+## 下载 Windows 版本
+
+可从 [GitHub Releases](https://github.com/hvccj/duankou-saomiao/releases/latest) 下载 `端口扫描系统软件.exe`。该版本无需安装 Python 或 PyQt5；首次运行时请确认文件来源，也可以使用发布页提供的 SHA-256 值校验文件完整性。本软件仅用于获授权的本机 TCP 连通性探测。
 ## 使用流程
 
 1. 启动程序，确认顶部显示的本机主机名和 IP。
@@ -101,7 +104,7 @@ python -m pip install pyinstaller
 pyinstaller "端口扫描系统软件.spec"
 ```
 
-构建输出由 PyInstaller 写入 `build/` 和 `dist/`，这些目录不应提交。spec 使用窗口模式生成名为“端口扫描系统软件”的 Windows executable。
+构建输出由 PyInstaller 写入被 Git 忽略的 `build/` 和 `dist/`，这些目录不应提交 Git。通过构建生成的 Windows executable 应通过 GitHub Releases 发布，而不是提交到 Git 仓库。spec 使用窗口模式生成名为“端口扫描系统软件”的 Windows executable。
 
 ## 当前限制
 
