@@ -45,6 +45,8 @@
 
 ## 停止与异常边界
 
-`stop()` 将共享的 `running` 标志设为 `False`，worker 在下一轮检查后不再继续领取任务。已经进入 `connect_ex()` 的调用仍可能等待配置的 socket timeout；当前源码没有单独的取消 token、强制关闭全部 worker 或暂停/恢复功能。
+`stop()` 将共享的 `running` 标志设为 `False`，worker 在下一轮检查后不再继续领取任务。已经进入 `connect_ex()` 的调用仍可能等待配置的 socket timeout。`PortScannerThread.run()` 随后仍会等待 `Queue.join()`；队列中尚未领取的任务不会调用 `task_done()`，因此在大范围扫描中停止或关闭窗口可能阻塞。停止操作不一定能可靠地结束扫描，这是当前实现限制；当前源码也没有单独的取消 token、强制关闭全部 worker 或暂停/恢复功能。
 
 socket 异常会按普通模式记录为关闭端口；队列为空时 worker 退出，`Queue.join()` 返回后发出 `finish`。文档不将该行为扩展为网络重试、结果持久化或远程扫描。
+
+可靠取消和队列清理（包括为未领取任务完成适当的 `task_done()` 处理）属于未来改进方向，当前实现不提供这些保证。
