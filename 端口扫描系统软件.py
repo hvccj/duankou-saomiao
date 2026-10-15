@@ -26,6 +26,7 @@ def get_precise_windows_version():
         return f"Windows {major}", f"{major}", f"Build {build}"
 
 def get_local_ip():
+    """Return the local IPv4 address, falling back to loopback on failure."""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(('8.8.8.8', 80))
@@ -62,6 +63,8 @@ def get_service_name(port):
         return "未知服务"
 
 class PortScannerThread(QThread):
+    """Run port probes in bounded worker threads and emit scan updates."""
+
     progress = pyqtSignal(int)
     result = pyqtSignal(int, str, float, str)
     finish = pyqtSignal()
@@ -75,6 +78,7 @@ class PortScannerThread(QThread):
         self.running = True
 
     def scan_worker(self, task_queue):
+        """Process queued ports until the queue is empty or scanning stops."""
         while self.running:
             try:
                 port = task_queue.get_nowait()
@@ -101,6 +105,7 @@ class PortScannerThread(QThread):
             task_queue.task_done()
 
     def run(self):
+        """Populate the queue, start workers, and emit completion when done."""
         task_queue = Queue()
         for port in self.ports:
             task_queue.put(port)
@@ -117,6 +122,7 @@ class PortScannerThread(QThread):
         self.finish.emit()
 
     def stop(self):
+        """Request that workers stop after their current task."""
         self.running = False
 
 class MainWindow(QWidget):
@@ -268,31 +274,45 @@ class MainWindow(QWidget):
         self.setLayout(main_layout)
 
     def get_ports(self):
+        """Parse the port input or return the selected scan range."""
         if self.chk_all.isChecked():
             return list(range(1,65536))
         s = self.ports_input.text().strip()
         if not s:
-            return sorted(set([21,22,23,25,53,80,110,135,139,143,443,445,1433,1521,3306,3389,6379,8080,8888,9000] + list(range(1,1025))))
-        res = set()
-        s = s.replace(',', ' ')
-        for part in s.split():
+            return self.default_ports()
+        ports = set()
+        invalid_parts = []
+        for part in s.replace(',', ' ').split():
             try:
                 if '-' in part:
-                    x, y = map(int, part.split('-'))
-                    if 1 <= x <= 65535 and 1 <= y <= 65535:
-                        res.update(range(min(x, y), max(x, y) + 1))
+                    start, end = map(int, part.split('-', 1))
+                    if not 1 <= start <= 65535 or not 1 <= end <= 65535:
+                        raise ValueError
+                    ports.update(range(min(start, end), max(start, end) + 1))
                 else:
                     port = int(part)
-                    if 1 <= port <= 65535:
-                        res.add(port)
-            except: pass
-        return sorted(list(res))
+                    if not 1 <= port <= 65535:
+                        raise ValueError
+                    ports.add(port)
+            except ValueError:
+                invalid_parts.append(part)
+        if invalid_parts:
+            self.tip_box.setText("已忽略无效端口：" + ", ".join(invalid_parts[:5]))
+        return sorted(ports)
+
+    def default_ports(self):
+        """Return the built-in common ports and the standard system range."""
+        return sorted(set(
+            [21,22,23,25,53,80,110,135,139,143,443,445,1433,1521,
+             3306,3389,6379,8080,8888,9000] + list(range(1,1025))
+        ))
 
     def get_thread_count(self):
+        """Return the clamped worker count, defaulting invalid input to 100."""
         userv = self.thread_input.text().strip()
         try:
             v = int(userv)
-        except:
+        except ValueError:
             v = 100
         return min(max(v, 10), 300)
 
