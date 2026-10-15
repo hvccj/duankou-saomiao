@@ -17,7 +17,9 @@
 
 ## 界面截图
 
-> 截图文件路径：`docs/assets/port-scanner-main-window.png`（将真实截图放入该路径）
+![端口扫描系统主界面](docs/assets/port-scanner-main-window.png)
+
+主界面展示本机信息、端口输入、扫描控制和结果表格。
 
 ## 功能矩阵
 
@@ -95,6 +97,7 @@ GUI 线程只负责窗口和控件；socket 连接探测由 `PortScannerThread` 
 仓库已提供 `端口扫描系统软件.spec`，在已安装依赖的环境中运行：
 
 ```powershell
+python -m pip install pyinstaller
 pyinstaller "端口扫描系统软件.spec"
 ```
 
